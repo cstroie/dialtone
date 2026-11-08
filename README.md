@@ -40,7 +40,7 @@ ATDT0100            the Digital Rerun BBS
 
 ## IRC
 
-It dials a server through the modem, registers (`NICK`, `USER`) and talks IRC. A status bar on
+On start it shows how to begin (`/connect`, `/connect 1`, `/help`); `/help` lists every command in four groups: connecting, channels, people, other. It dials a server through the modem, registers (`NICK`, `USER`) and talks IRC. A status bar on
 the top row (your nick, the server, who you are talking to), the messages scrolling below it,
 your line (76 characters; backspace edits, Ctrl-U clears) on the bottom row. A line that does
 not start with a slash is said to the current channel or person; `//text` says a line that
@@ -55,7 +55,7 @@ begins with a slash.
 | `/list`, `/names`, `/whois`, `/who`, `/topic`, `/mode`, `/away` | the rest of the line goes to the server |
 | `/raw line` | a line to the server as it is |
 | `/quit [text]`, `/bye [text]` | hang up (IRC stays); hang up and leave |
-| `/help`, `/clear` | the commands; clear the screen |
+| `/help`, `/clear` | the commands, grouped; clear the screen |
 
 Plain TCP only: the program does no TLS, so the server must listen on a port of 6660-6669
 (6667 usually).
@@ -63,17 +63,25 @@ Plain TCP only: the program does no TLS, so the server must listen on a port of 
 ## The directories
 
 `TERM.DIR` and `IRC.DIR` are plain text files beside the programs, one place per line, edited
-with any CP/M editor (`ED`). Both end at the end of the file or at a `^Z`; the programs read up
-to 1536 bytes of it. Examples are in [`examples/`](examples/).
+with any CP/M editor (`ED`). Both ship here filled in, ready to copy next to the `.COM` files
+(copy them as text, so the file ends in a `^Z`):
 
 ```
-TERM.DIR   a number or a host[:port], then a name      0101 telehack.com
-IRC.DIR    host[:port], then a name                   irc.libera.chat:6667 Libera.Chat
+TERM.DIR   the string to dial, then a name       telehack.com Telehack
+IRC.DIR    host[:port], then a name              irc.libera.chat:6667 Libera.Chat: free and open source projects
 ```
+
+- **TERM.DIR** lists up to 16 places, shown in two columns, so keep a line to 37 characters; the
+  first word (at most 24 characters) is what `ATDT` gets. The ten here are telnet hosts: BBSes,
+  a MUD, NetHack, Telehack, a public-access Unix. They need a modem that dials a host name (a WiFi
+  modem, or DigitalRerun's bridge); on a modem that dials numbers, put numbers.
+- **IRC.DIR** lists up to 16 servers, ten here (Libera.Chat, OFTC, Rizon, EFnet, DALnet,
+  Undernet, QuakeNet, IRCnet, Snoonet, GameSurge), all on port 6667. `/connect` shows them
+  numbered; `/connect 3` dials the third.
 
 In DigitalRerun both files are generated at build time from the emulator's own dial list
-(`js/devices/directory.js`), because the numbers must match what its modem can dial. The
-examples here are a copy of what it ships.
+(`js/devices/directory.js`), because the numbers must match what its modem can dial; the files
+here are for every other machine.
 
 ## Running
 
@@ -118,8 +126,8 @@ committed.
 |---|---|
 | `term.asm`, `irc.asm` | the sources |
 | `TERM.COM`, `IRC.COM` | as built |
-| `build.js`, `test/` | the build and its check |
-| `examples/` | `TERM.DIR` and `IRC.DIR` as DigitalRerun ships them |
+| `build.js`, `test/` | the build and its check; the directories' limits |
+| `TERM.DIR`, `IRC.DIR` | ready-made directories of places to go |
 | `docs/` | the disk's readme, the screenshots |
 
 ## Licence

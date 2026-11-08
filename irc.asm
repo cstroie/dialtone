@@ -67,10 +67,8 @@ have:	lxi	h,0
 	lxi	h,sate0		;no call: the modem need not echo what we send it
 	call	txz
 hv1:	call	initscr
-	lxi	h,mhello
-	call	info
-	lxi	h,mhello2
-	call	info
+	lxi	h,welcome
+	call	hlines
 	jmp	loop
 
 ;	the loop: the modem into the ring, the carrier, a byte of the ring, a key
@@ -305,6 +303,13 @@ info:	push	h
 	call	mbeg
 	lxi	h,sstar
 	call	mputz
+	pop	h
+	call	mputz
+	jmp	mend
+
+;	a line of text as it is in the message area (no ***)
+hline:	push	h
+	call	mbeg
 	pop	h
 	call	mputz
 	jmp	mend
@@ -766,18 +771,20 @@ cmdtab:	db	'CONNECT',0
 	db	0
 
 ;	/help
-chelp:	lxi	h,hlp1
-	call	info
-	lxi	h,hlp2
-	call	info
-	lxi	h,hlp3
-	call	info
-	lxi	h,hlp4
-	call	info
-	lxi	h,hlp5
-	call	info
-	lxi	h,hlp6
-	jmp	info
+chelp:	lxi	h,helptab
+;	the lines of a table of words (0-ended), each in the message area as it is
+hlines:	mov	e,m
+	inx	h
+	mov	d,m
+	inx	h
+	mov	a,d
+	ora	e
+	rz
+	push	h
+	xchg
+	call	hline
+	pop	h
+	jmp	hlines
 cclear:	jmp	initscr
 
 ;	/nick name
@@ -1985,8 +1992,11 @@ htopic:	call	mbeg
 ;	---- the data ----
 
 nomsg:	db	'No modem on this machine.',cr,lf,'$'
-mhello:	db	'IRC for CP/M. /connect dials a server (IRC.DIR lists some), /help lists the commands.',0
-mhello2:db	'Say what you like to the current channel; start a command with a slash.',0
+welcome:dw	w1h,w2h,w3h,w4h,0
+w1h:	db	27,'[1m','IRC for CP/M',27,'[0m',', a client for the modem port',0
+w2h:	db	'  /connect         the servers of IRC.DIR, or /connect host[:port]',0
+w3h:	db	'  /connect 1       dial the first one, then /join #channel and type',0
+w4h:	db	'  /help            every command, in groups',0
 mconn:	db	'Connected.',0
 mdisc:	db	'Disconnected.',0
 mnocon:	db	'Not connected: use /connect first.',0
@@ -2000,12 +2010,26 @@ malready:db	'Already connected: /quit first.',0
 mdialing:db	'Dialing already: /quit gives it up.',0
 mdial:	db	'Dialing ',0
 mtaken:	db	'That nick is taken, trying another.',0
-hlp1:	db	'/connect [host[:port]|n]  /nick name  /join #chan [key]  /part [#chan]  /list [args]',0
-hlp2:	db	'/names [#chan]  /msg nick text  /query nick [text]  /me action  /whois nick  /who mask',0
-hlp3:	db	'/topic [text]  /mode [+-modes]  /away [text]  /raw line  /clear  /help',0
-hlp4:	db	'/quit [text] hangs up; /bye [text] hangs up and leaves. // sends a line that begins with /.',0
-hlp5:	db	'Ctrl-U clears the line you are typing.',0
-hlp6:	db	'A server must take plain TCP on a port of 6660-6669 (6667 usually): no TLS here.',0
+helptab:dw	hl0,hl1,hl2,hl3,hl2b,hlbl,hl4,hl5,hl6,hl7
+	dw	hlbl,hl8,hl9,hl10,hl11,hlbl,hl12,hl13,hl14,hl15,0
+hlbl:	db	0
+hl0:	db	27,'[1m','CONNECTING',27,'[0m',0
+hl1:	db	'  /connect [host[:port]|n]  dial a server; with nothing, list IRC.DIR',0
+hl2:	db	'  /nick name                your nick, before you connect or to change it',0
+hl3:	db	'  /quit [text]              hang up, IRC stays',0
+hl2b:	db	'  /bye [text]               hang up and leave',0
+hl4:	db	27,'[1m','CHANNELS',27,'[0m',0
+hl5:	db	'  /join #chan [key]         join it; what you type then goes there',0
+hl6:	db	'  /part [#chan]             leave it',0
+hl7:	db	'  /list [args]   /names [#chan]   /topic [text]   /mode [+-modes]',0
+hl8:	db	27,'[1m','PEOPLE',27,'[0m',0
+hl9:	db	'  /msg nick text            one private message',0
+hl10:	db	'  /query nick [text]        talk to one person; what you type goes to them',0
+hl11:	db	'  /me action   /whois nick   /who mask   /away [text]',0
+hl12:	db	27,'[1m','OTHER',27,'[0m',0
+hl13:	db	'  /raw line   /clear   /help        // sends a line that begins with a slash',0
+hl14:	db	'  Ctrl-U clears the line you are typing.',0
+hl15:	db	'  A server must take plain TCP on a port of 6660-6669 (6667 usually): no TLS.',0
 sstar:	db	'*** ',0
 sdash:	db	'-- ',0
 sstar1:	db	'* ',0
