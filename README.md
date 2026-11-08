@@ -40,7 +40,7 @@ ATDT0100            the Digital Rerun BBS
 
 ## IRC
 
-On start it shows how to begin (`/connect`, `/connect 1`, `/help`); `/help` lists every command in four groups: connecting, channels, people, other. It dials a server through the modem, registers (`NICK`, `USER`) and talks IRC. A status bar on
+On start it shows how to begin (`/connect`, `/connect 1`, `/help`); `/help` lists every command in four groups (connecting, channels, people, other); the welcome and the whole help fit the 22 message rows together, so nothing scrolls off. It dials a server through the modem, registers (`NICK`, `USER`) and talks IRC. A status bar on
 the top row (your nick, the server, who you are talking to), the messages scrolling below it,
 your line (76 characters; backspace edits, Ctrl-U clears) on the bottom row. A line that does
 not start with a slash is said to the current channel or person; `//text` says a line that

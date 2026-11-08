@@ -2010,26 +2010,26 @@ malready:db	'Already connected: /quit first.',0
 mdialing:db	'Dialing already: /quit gives it up.',0
 mdial:	db	'Dialing ',0
 mtaken:	db	'That nick is taken, trying another.',0
-helptab:dw	hl0,hl1,hl2,hl3,hl2b,hlbl,hl4,hl5,hl6,hl7
-	dw	hlbl,hl8,hl9,hl10,hl11,hlbl,hl12,hl13,hl14,hl15,0
-hlbl:	db	0
+helptab:dw	hl0,hl1,hl2,hl3,hl4,hl5,hl6,hl7
+	dw	hl8,hl9,hl10,hl11,hl12,hl13,hl14,hl15
+	dw	hl16,0
 hl0:	db	27,'[1m','CONNECTING',27,'[0m',0
 hl1:	db	'  /connect [host[:port]|n]  dial a server; with nothing, list IRC.DIR',0
 hl2:	db	'  /nick name                your nick, before you connect or to change it',0
-hl3:	db	'  /quit [text]              hang up, IRC stays',0
-hl2b:	db	'  /bye [text]               hang up and leave',0
-hl4:	db	27,'[1m','CHANNELS',27,'[0m',0
-hl5:	db	'  /join #chan [key]         join it; what you type then goes there',0
-hl6:	db	'  /part [#chan]             leave it',0
-hl7:	db	'  /list [args]   /names [#chan]   /topic [text]   /mode [+-modes]',0
-hl8:	db	27,'[1m','PEOPLE',27,'[0m',0
-hl9:	db	'  /msg nick text            one private message',0
-hl10:	db	'  /query nick [text]        talk to one person; what you type goes to them',0
-hl11:	db	'  /me action   /whois nick   /who mask   /away [text]',0
-hl12:	db	27,'[1m','OTHER',27,'[0m',0
-hl13:	db	'  /raw line   /clear   /help        // sends a line that begins with a slash',0
-hl14:	db	'  Ctrl-U clears the line you are typing.',0
-hl15:	db	'  A server must take plain TCP on a port of 6660-6669 (6667 usually): no TLS.',0
+hl3:	db	'  /quit [text]              hang up, IRC stays; /bye [text] leaves too',0
+hl4:	db	0
+hl5:	db	27,'[1m','CHANNELS',27,'[0m',0
+hl6:	db	'  /join #chan [key]         join it; what you type then goes there',0
+hl7:	db	'  /part [#chan]  /list [args]  /names [#chan]  /topic [text]  /mode [+-modes]',0
+hl8:	db	0
+hl9:	db	27,'[1m','PEOPLE',27,'[0m',0
+hl10:	db	'  /msg nick text            one private message',0
+hl11:	db	'  /query nick [text]        talk to one person; what you type goes to them',0
+hl12:	db	'  /me action   /whois nick   /who mask   /away [text]',0
+hl13:	db	0
+hl14:	db	27,'[1m','OTHER',27,'[0m',0
+hl15:	db	'  /raw line   /clear   /help        // sends a line that begins with a slash',0
+hl16:	db	'  Ctrl-U clears your line.   Plain TCP only: ports 6660-6669, no TLS.',0
 sstar:	db	'*** ',0
 sdash:	db	'-- ',0
 sstar1:	db	'* ',0
