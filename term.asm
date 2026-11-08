@@ -11,6 +11,9 @@
 ;	come back), H hangs up, Esc or Space is back to the terminal, and Ctrl-]
 ;	in the menu sends a Ctrl-]. A>TERM
 ;
+;	A>TERM telehack.com (or a number, or a word of a name in TERM.DIR: A>TERM
+;	telehack) dials at once.
+;
 ;	Copyright (c) 2026 Costin Stroie, MIT licence.
 
 bdos	equ	0005h
@@ -38,6 +41,7 @@ cr	equ	13
 lf	equ	10
 
 	org	100h
+	call	getarg		;the command line first: the file calls below overwrite it
 	in	mst
 	cpi	0ffh		;nothing answers: no modem here
 	jnz	have
@@ -52,6 +56,9 @@ have:	mvi	a,1		;DTR up
 	call	bdos
 	xra	a
 	sta	pend
+	lda	cmdarg		;TERM name: dial it
+	ora	a
+	cnz	cmddial
 
 ;	the loop: take what came in, then send a key if the line can take one
 loop:	in	mst
@@ -629,6 +636,148 @@ ld4:	mvi	m,1ah
 	xra	a
 	ret
 
+;	---- the command line: A>TERM telehack.com, A>TERM 0100, A>TERM telehack ----
+
+;	the first word of the command line into CMDARG, in lower case (0-ended, 24 characters at most)
+getarg:	lxi	h,cmdarg
+	mvi	m,0
+	lda	80h
+	ora	a
+	rz
+	mov	b,a
+	lxi	d,81h
+ga1:	ldax	d
+	cpi	' '
+	jnz	ga2
+	inx	d
+	dcr	b
+	jnz	ga1
+	ret
+ga2:	mvi	c,24
+ga3:	ldax	d
+	cpi	21h
+	jc	ga9
+	call	lower
+	mov	m,a
+	inx	h
+	inx	d
+	dcr	c
+	jz	ga9
+	dcr	b
+	jnz	ga3
+ga9:	mvi	m,0
+	ret
+
+;	dial CMDARG: a line of TERM.DIR that has it anywhere in it (a number, a host, a word of the
+;	name) gives the string to dial, else CMDARG is dialed as it is. Back at the caller
+cmddial:call	chkoff
+	lxi	h,cmdarg
+	shld	fkarg
+	mov	a,m
+	cpi	'0'
+	jc	cd5
+	cpi	':'
+	jc	cd2		;a number is dialed as it is
+cd5:	call	loaddir
+	jc	cd2
+	call	findkey
+	jnc	cd1
+cd2:	lxi	h,cmdarg
+cd1:	lxi	d,dialbuf+4
+	mvi	c,24
+cd3:	mov	a,m
+	cpi	21h
+	jc	cd4
+	stax	d
+	inx	h
+	inx	d
+	dcr	c
+	jnz	cd3
+cd4:	mvi	a,cr
+	stax	d
+	inx	d
+	xra	a
+	stax	d
+	mvi	a,1
+	sta	havenum
+	xra	a
+	sta	cm
+	lxi	d,dialbuf
+	jmp	sendat
+
+;	the first line of TERM.DIR (in DIRBUF) that has the text at FKARG in it, in either case:
+;	CY clear and HL its start; CY set if there is none
+findkey:lxi	h,dirbuf
+fk1:	call	tnext
+	rc
+	shld	fkst
+	xchg
+	shld	fkend
+	lhld	fkst
+fk2:	shld	fkp
+	xchg
+	lhld	fkarg
+	xchg			;DE the text, HL the place in the line
+fk3:	ldax	d
+	ora	a
+	jz	fkyes
+	call	lower
+	mov	b,a
+	mov	a,m
+	call	lower
+	cmp	b
+	jnz	fk4
+	inx	h
+	inx	d
+	jmp	fk3
+fk4:	lhld	fkp
+	inx	h
+	xchg			;DE the new place
+	lhld	fkend
+	mov	a,e
+	sub	l
+	mov	a,d
+	sbb	h
+	jnc	fk5		;past the end of the line
+	xchg
+	jmp	fk2
+fk5:	lhld	fkend
+	jmp	fk1
+fkyes:	lhld	fkst
+	ora	a
+	ret
+
+;	the next line at or after HL in DIRBUF: HL its start, DE its end; CY set at the end of the file
+tnext:	mov	a,m
+	cpi	1ah
+	jz	tn9
+	ora	a
+	jz	tn9
+	cpi	21h
+	jc	tn1
+	push	h
+tn2:	mov	a,m
+	cpi	' '
+	jc	tn3
+	inx	h
+	jmp	tn2
+tn3:	xchg
+	pop	h
+	ora	a
+	ret
+tn1:	inx	h
+	jmp	tnext
+tn9:	stc
+	ret
+
+;	A in lower case
+lower:	cpi	'A'
+	rc
+	cpi	'['
+	rnc
+	adi	20h
+	ret
+
 ;	---- XMODEM (checksum, 128 byte blocks) ----
 
 ;	print the $ string at DE through the direct console call (BDOS 6): the other output calls
@@ -1153,6 +1302,11 @@ fcb:	ds	36
 buf:	ds	133
 ent:	ds	32
 nent:	ds	1
+cmdarg:	ds	26
+fkarg:	ds	2
+fkst:	ds	2
+fkend:	ds	2
+fkp:	ds	2
 dirbuf:	ds	1664
 dirend	equ	dirbuf+1536
 	end

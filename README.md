@@ -38,6 +38,18 @@ A>TERM
 ATDT0100            the Digital Rerun BBS
 ```
 
+Or dial from the command line, and TERM starts already calling:
+
+```
+A>TERM telehack         a word of a line of TERM.DIR (a name, a host)
+A>TERM telehack.com     a host, or host:port
+A>TERM 0100             a number: always dialed as it is
+```
+
+A word that is in `TERM.DIR` dials that line's first word; anything else is dialed as given
+(in lower case; at most 24 characters). A number, or anything that starts with a digit, is never
+looked up.
+
 ## IRC
 
 On start it shows how to begin (`/connect`, `/connect 1`, `/help`); `/help` lists every command in four groups (connecting, channels, people, other); the welcome and the whole help fit the 22 message rows together, so nothing scrolls off. It dials a server through the modem, registers (`NICK`, `USER`) and talks IRC. A status bar on
@@ -48,7 +60,7 @@ begins with a slash.
 
 | Command | |
 |---|---|
-| `/connect [host[:port] \| n]` | dial a server; no argument lists `IRC.DIR`; a one- or two-digit number is a line of it |
+| `/connect [host[:port] \| n \| word]` | dial a server; no argument lists `IRC.DIR`; a one- or two-digit number is a line of it; a word is the first line that has it |
 | `/nick name` | set the nick (before a connection) or change it |
 | `/join #chan [key]`, `/part [#chan]` | the channel you join is where you talk |
 | `/msg nick text`, `/query nick [text]`, `/me action` | private messages; `/query` makes a person the target |
@@ -56,6 +68,14 @@ begins with a slash.
 | `/raw line` | a line to the server as it is |
 | `/quit [text]`, `/bye [text]` | hang up (IRC stays); hang up and leave |
 | `/help`, `/clear` | the commands, grouped; clear the screen |
+
+From the command line, `IRC` takes the same as `/connect` and dials at once:
+
+```
+B>IRC libera            a word of a line of IRC.DIR (a name, a host)
+B>IRC 3                 the third line of IRC.DIR
+B>IRC irc.example.org   a host, or host:port (the port defaults to 6667)
+```
 
 Plain TCP only: the program does no TLS, so the server must listen on a port of 6660-6669
 (6667 usually).

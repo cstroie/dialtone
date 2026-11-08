@@ -18,6 +18,9 @@
 ;	TCP only: the bridge does no TLS, so a server must listen on 6667 or so.
 ;	B>IRC		(it lives on the Online shelf disk, with TERM)
 ;
+;	B>IRC libera dials at once: a number of IRC.DIR, a word of one of its lines (a
+;	name, a host), or a host[:port]. /connect takes the same.
+;
 ;	Copyright (c) 2026 Costin Stroie, MIT licence.
 
 bdos	equ	0005h
@@ -35,6 +38,7 @@ lf	equ	10
 imax	equ	76		;the longest line you can type (the bottom row)
 
 	org	100h
+	call	getarg		;the command line first: the file calls below overwrite it
 	in	mst
 	cpi	0ffh		;nothing answers: no modem here
 	jnz	have
@@ -69,6 +73,12 @@ have:	lxi	h,0
 hv1:	call	initscr
 	lxi	h,welcome
 	call	hlines
+	lda	cmdarg		;IRC name: connect at once
+	ora	a
+	jz	loop
+	lxi	h,cmdarg
+	shld	argp
+	call	cconn
 	jmp	loop
 
 ;	the loop: the modem into the ring, the carrier, a byte of the ring, a key
@@ -1126,6 +1136,14 @@ cc1:	call	nextline
 	xchg
 	jmp	cc1
 cc2:	lhld	w1
+	mov	a,m
+	call	isdig
+	jc	cc3		;it starts with a digit: dialed as it is
+	call	loaddir		;a word of IRC.DIR's lines (a name, a host) dials that line
+	jc	cc3
+	call	findkey
+	jnc	cc4
+cc3:	lhld	w1
 cc4:	call	mkdial
 	jmp	docall
 cc8:	lxi	h,malready
@@ -1220,6 +1238,86 @@ dcl2:	xra	a
 	call	mend
 	lxi	h,dialbuf
 	jmp	txz
+
+;	the first word of the command line into CMDARG, in lower case (0-ended, 40 characters at most)
+getarg:	lxi	h,cmdarg
+	mvi	m,0
+	lda	80h
+	ora	a
+	rz
+	mov	b,a
+	lxi	d,81h
+ga1:	ldax	d
+	cpi	' '
+	jnz	ga2
+	inx	d
+	dcr	b
+	jnz	ga1
+	ret
+ga2:	mvi	c,40
+ga3:	ldax	d
+	cpi	21h
+	jc	ga9
+	call	lower
+	mov	m,a
+	inx	h
+	inx	d
+	dcr	c
+	jz	ga9
+	dcr	b
+	jnz	ga3
+ga9:	mvi	m,0
+	ret
+
+;	A in lower case
+lower:	cpi	'A'
+	rc
+	cpi	'['
+	rnc
+	adi	20h
+	ret
+
+;	the first line of IRC.DIR (in DIRBUF) that has the text at W1 in it, in either case:
+;	CY clear and HL its start; CY set if there is none
+findkey:lxi	h,dirbuf
+fk1:	call	nextline
+	rc
+	shld	fkst
+	xchg
+	shld	fkend
+	lhld	fkst
+fk2:	shld	fkp
+	xchg
+	lhld	w1
+	xchg			;DE the text, HL the place in the line
+fk3:	ldax	d
+	ora	a
+	jz	fkyes
+	call	lower
+	mov	b,a
+	mov	a,m
+	call	lower
+	cmp	b
+	jnz	fk4
+	inx	h
+	inx	d
+	jmp	fk3
+fk4:	lhld	fkp
+	inx	h
+	xchg			;DE the new place
+	lhld	fkend
+	mov	a,e
+	sub	l
+	mov	a,d
+	sbb	h
+	jnc	fk5		;past the end of the line
+	xchg
+	jmp	fk2
+fk5:	lhld	fkend
+	jmp	fk1
+fkyes:	lhld	fkst
+	ora	a
+	ret
 
 ;	/connect with nothing: the servers of IRC.DIR, numbered
 showdir:call	loaddir
@@ -2135,6 +2233,10 @@ ring:	ds	256
 lbuf:	ds	520
 lend	equ	lbuf+510
 obuf:	ds	520
+cmdarg:	ds	42
+fkst:	ds	2
+fkend:	ds	2
+fkp:	ds	2
 dirbuf:	ds	1664
 dirend	equ	dirbuf+1536
 	end
