@@ -137,7 +137,7 @@ pl1:	in	mst
 	in	mdat
 	mov	c,a
 	mov	l,b
-	mvi	h,high ring
+	mvi	h,ringhi
 	mov	m,c
 	jmp	pl1
 pl9:	pop	h
@@ -157,7 +157,7 @@ rget:	push	h
 rg1:	mov	l,a
 	inr	a
 	sta	rtail
-	mvi	h,high ring
+	mvi	h,ringhi
 	mov	a,m
 	pop	h
 	ora	a		;CY clear
@@ -1629,7 +1629,7 @@ getpar:	mov	b,a
 gp0:	lxi	h,nul
 	ret
 
-;	the nick of the prefix (up to the !) into SNICK
+;	the nick of the prefix (up to the bang) into SNICK
 getnick:xra	a
 	sta	ufl
 	lxi	d,snick
@@ -2092,8 +2092,8 @@ htopic:	call	mbeg
 nomsg:	db	'No modem on this machine.',cr,lf,'$'
 welcome:dw	w1h,w2h,w3h,w4h,0
 w1h:	db	27,'[1m','IRC for CP/M',27,'[0m',', a client for the modem port',0
-w2h:	db	'  /connect         the servers of IRC.DIR, or /connect host[:port]',0
-w3h:	db	'  /connect 1       dial the first one, then /join #channel and type',0
+w2h:	db	'  /connect         the servers of IRC.DI','R, or /connect host[:port]',0
+w3h:	db	'  /connect 1       dial the first one, t','hen /join #channel and type',0
 w4h:	db	'  /help            every command, in groups',0
 mconn:	db	'Connected.',0
 mdisc:	db	'Disconnected.',0
@@ -2112,22 +2112,22 @@ helptab:dw	hl0,hl1,hl2,hl3,hl4,hl5,hl6,hl7
 	dw	hl8,hl9,hl10,hl11,hl12,hl13,hl14,hl15
 	dw	hl16,0
 hl0:	db	27,'[1m','CONNECTING',27,'[0m',0
-hl1:	db	'  /connect [host[:port]|n]  dial a server; with nothing, list IRC.DIR',0
-hl2:	db	'  /nick name                your nick, before you connect or to change it',0
-hl3:	db	'  /quit [text]              hang up, IRC stays; /bye [text] leaves too',0
+hl1:	db	'  /connect [host[:port]|n]  dial a serve','r; with nothing, list IRC.DIR',0
+hl2:	db	'  /nick name                your nick, b','efore you connect or to change it',0
+hl3:	db	'  /quit [text]              hang up, IRC',' stays; /bye [text] leaves too',0
 hl4:	db	0
 hl5:	db	27,'[1m','CHANNELS',27,'[0m',0
-hl6:	db	'  /join #chan [key]         join it; what you type then goes there',0
-hl7:	db	'  /part [#chan]  /list [args]  /names [#chan]  /topic [text]  /mode [+-modes]',0
+hl6:	db	'  /join #chan [key]         join it; wha','t you type then goes there',0
+hl7:	db	'  /part [#chan]  /list [args]  /names [#','chan]  /topic [text]  /mode [+-modes]',0
 hl8:	db	0
 hl9:	db	27,'[1m','PEOPLE',27,'[0m',0
 hl10:	db	'  /msg nick text            one private message',0
-hl11:	db	'  /query nick [text]        talk to one person; what you type goes to them',0
+hl11:	db	'  /query nick [text]        talk to one ','person; what you type goes to them',0
 hl12:	db	'  /me action   /whois nick   /who mask   /away [text]',0
 hl13:	db	0
 hl14:	db	27,'[1m','OTHER',27,'[0m',0
-hl15:	db	'  /raw line   /clear   /help        // sends a line that begins with a slash',0
-hl16:	db	'  Ctrl-U clears your line.   Plain TCP only: ports 6660-6669, no TLS.',0
+hl15:	db	'  /raw line   /clear   /help        // s','ends a line that begins with a slash',0
+hl16:	db	'  Ctrl-U clears your line.   Plain TCP o','nly: ports 6660-6669, no TLS.',0
 sstar:	db	'*** ',0
 sdash:	db	'-- ',0
 sstar1:	db	'* ',0
@@ -2228,8 +2228,8 @@ ibuf:	ds	imax+2
 fcb:	ds	36
 	ds	256
 stktop	equ	$
-	ds	(100h-low $) and 0ffh	;the ring starts on a page
-ring:	ds	256
+ringhi	equ	30h		;the ring is a page of its own, above the program and its buffers
+ring	equ	3000h
 lbuf:	ds	520
 lend	equ	lbuf+510
 obuf:	ds	520

@@ -197,7 +197,7 @@ leave:	xra	a
 	jmp	pr
 
 hang:	xra	a		;DTR down and up again
-	sta	cm
+	sta	cmode
 	out	mctl
 	mvi	a,1
 	out	mctl
@@ -218,7 +218,7 @@ drawstat:
 	sta	dcd
 	lxi	d,st1
 	call	pr
-	lda	cm
+	lda	cmode
 	ora	a
 	lxi	d,lcmd
 	jnz	ds1
@@ -298,7 +298,7 @@ pd3:	pop	psw
 ;	---- the modem commands (the modem must be in command mode) ----
 
 ;	return to the caller if AT text may go to the modem; else say so and back to the loop
-chkoff:	lda	cm
+chkoff:	lda	cmode
 	ora	a
 	rnz			;we escaped: it is in command mode
 	in	mst
@@ -354,7 +354,7 @@ reset:	call	chkoff
 factory:call	chkoff
 	lxi	d,atf
 reset1:	xra	a
-	sta	cm
+	sta	cmode
 	sta	aa
 	inr	a
 	sta	spk
@@ -371,7 +371,7 @@ redial:	call	chkoff
 	call	pr
 	jmp	loop
 rd1:	xra	a
-	sta	cm
+	sta	cmode
 	call	leave
 	lxi	d,dialbuf
 	jmp	atcmd
@@ -418,17 +418,17 @@ es1:	lxi	d,mesc
 	call	txb
 	call	txb		;the second of silence after it is the modem's to measure: its OK comes then
 	mvi	a,1
-	sta	cm
+	sta	cmode
 	call	drawstat
 	jmp	loop
-goon:	lda	cm
+goon:	lda	cmode
 	ora	a
 	jnz	go1
 	lxi	d,mnoesc
 	call	pr
 	jmp	loop
 go1:	xra	a
-	sta	cm
+	sta	cmode
 	call	leave
 	lxi	d,ato
 	jmp	atcmd
@@ -573,7 +573,7 @@ cancel:	call	drawmenu
 dodial:	mvi	a,1
 	sta	havenum
 	xra	a
-	sta	cm
+	sta	cmode
 	call	leave
 	lxi	d,dialbuf
 	jmp	atcmd
@@ -701,7 +701,7 @@ cd4:	mvi	a,cr
 	mvi	a,1
 	sta	havenum
 	xra	a
-	sta	cm
+	sta	cmode
 	lxi	d,dialbuf
 	jmp	sendat
 
@@ -1266,7 +1266,7 @@ ats00:	db	'ATS0=0',cr,0
 ats01:	db	'ATS0=1',cr,0
 opt:	db	'AT??',cr,0
 dirname:db	'TERM    DIR'
-cm:	db	0		;1: we escaped, the modem is in command mode with the carrier up
+cmode:	db	0		;1: we escaped, the modem is in command mode with the carrier up
 spk:	db	1
 ech:	db	1
 aa:	db	0

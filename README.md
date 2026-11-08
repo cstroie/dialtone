@@ -127,9 +127,37 @@ as above.
 
 ## Building
 
-The sources are 8080 code in the dialect of CP/M's `ASM.COM`; DigitalRerun's
-[`js/asm8080.js`](https://github.com/cstroie/digital-rerun/blob/main/js/asm8080.js) assembles
-them (Node.js, no dependencies):
+### On the CP/M machine itself
+
+The sources are 8080 code in the dialect of CP/M's own `ASM.COM`, so the machine can build
+them with what it ships with: `ASM`, `LOAD` and `SUBMIT`. Put the system disk in A: and a disk
+in B: with `TERM.ASM`, `IRC.ASM`, `MAKE.SUB` and `MAKEALL.SUB` (copied as text; on DigitalRerun
+the **Online** disk already has them, and `TERM.COM` and `IRC.COM` get rebuilt in place):
+
+```
+A>SUBMIT B:MAKEALL          both programs
+A>SUBMIT B:MAKE TERM        one of them (TERM or IRC)
+```
+
+`MAKE.SUB` is three lines, with `$1` the name:
+
+```
+ASM $1.BBZ          source on B:, the .HEX on B:, no listing
+LOAD B:$1           .HEX to .COM
+ERA B:$1.HEX
+```
+
+On the 4 MHz emulator `TERM` takes about 25 seconds and `IRC` about 40 (a real floppy is slower). For a listing, use `ASM IRC.BBX`
+(the listing goes to the screen) or `ASM IRC.BBB` (to `IRC.PRN` on B:).
+Things `ASM.COM` does not take, which the sources keep to: no label that is an 8080
+mnemonic (`cm`, `cz`...), no string over 64 characters in one `db` operand, no `!` in a
+comment, no `HIGH`, `LOW` or `$` arithmetic in `ds`. `IRC` keeps its 256-byte receive ring at the
+fixed address 3000h, above the program and its buffers (a test keeps them below it).
+
+### On another machine, with Node.js
+
+DigitalRerun's [`js/asm8080.js`](https://github.com/cstroie/digital-rerun/blob/main/js/asm8080.js)
+assembles them (no dependencies):
 
 ```
 ASM8080=/path/to/digital-rerun/js/asm8080.js node build.js [outdir]
@@ -137,14 +165,16 @@ node --test            checks TERM.COM and IRC.COM against the sources (skipped 
 ```
 
 Inside DigitalRerun, where this repository is the submodule `system/dialtone`, no variable is
-needed and `node tools/build.js` builds the disks. `TERM.COM` (3.7K) and `IRC.COM` (5.9K) are
-committed.
+needed and `node tools/build.js` builds the disks. `TERM.COM` (4.0K) and `IRC.COM` (6.5K) are
+committed. Both builds make the same program: DigitalRerun's own test builds both ways and
+compares them.
 
 ## Files
 
 | File | |
 |---|---|
 | `term.asm`, `irc.asm` | the sources |
+| `MAKE.SUB`, `MAKEALL.SUB` | build on CP/M: `SUBMIT B:MAKEALL` |
 | `TERM.COM`, `IRC.COM` | as built |
 | `build.js`, `test/` | the build and its check; the directories' limits |
 | `TERM.DIR`, `IRC.DIR` | ready-made directories of places to go |

@@ -13,3 +13,8 @@ for (const [src, name] of [['term.asm', 'TERM.COM'], ['irc.asm', 'IRC.COM']]) {
         assert.deepEqual(com(asm, src), fs.readFileSync(path.join(__dirname, '..', name)));
     });
 }
+
+test('IRC and its buffers end below the ring at 3000h (irc.asm: RING)', { skip: !asm && 'no assembler (ASM8080)' }, () => {
+    const r = asm.assemble(fs.readFileSync(path.join(__dirname, '..', 'irc.asm'), 'latin1'), {});
+    assert.ok(r.high < 0x3000, `the program and its buffers end at ${r.high.toString(16)}`);
+});
