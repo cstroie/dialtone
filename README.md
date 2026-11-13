@@ -9,10 +9,10 @@ about 10K of program.
 |---|---|
 | ![TERM's modem menu](docs/term.png) | ![IRC's help](docs/irc.png) |
 
-They were written for [DigitalRerun](https://github.com/cstroie/digital-rerun), a CP/M computer
-in the browser, whose modem they were made to drive, and that is where they run out of the box
-(see [Hardware](#hardware) for what any other machine must provide). The same sources serve
-the boot disk (TERM) and the **Online** shelf disk (both).
+A standalone project, made to drive the modem of [DigitalRerun](https://github.com/cstroie/digital-rerun),
+a CP/M computer in the browser, where they run out of the box (see [Hardware](#hardware) for what any
+other machine must provide). DigitalRerun builds the same sources into its boot disk (TERM) and the
+**Online** shelf disk (both).
 
 ## TERM
 
@@ -106,8 +106,8 @@ here are for every other machine.
 ## Running
 
 On DigitalRerun: the shelf's *Comm* section, **Online**, *Insert* (in B:), then `B:` and `IRC` or
-`TERM`; TERM is also on the boot disk. On a machine of your own, copy `TERM.COM`, `IRC.COM` and
-the `.DIR` files you want onto a disk. The docs say more about the system they were made for:
+`TERM`; TERM is also on the boot disk. On a machine of your own, take `TERM.COM`, `IRC.COM` and the `.DIR`
+files from the [releases](https://github.com/cstroie/dialtone/releases) and copy them onto a disk. The docs say more about the system they were made for:
 [docs/ONLINE.txt](docs/ONLINE.txt) is the disk's own readme.
 
 ## Hardware
@@ -161,12 +161,14 @@ assembles them (no dependencies):
 
 ```
 ASM8080=/path/to/digital-rerun/js/asm8080.js node build.js [outdir]
-node --test            checks TERM.COM and IRC.COM against the sources (skipped without ASM8080)
+node --test test/*.test.js     the directories' limits; TERM.COM and IRC.COM against the sources
 ```
 
-Inside DigitalRerun, where this repository is the submodule `system/dialtone`, no variable is
-needed and `node tools/build.js` builds the disks. `TERM.COM` (4.0K) and `IRC.COM` (6.5K) are
-committed. Both builds make the same program: DigitalRerun's own test builds both ways and
+With a `digital-rerun` folder next to this one, or inside DigitalRerun, where this repository is
+the submodule `system/dialtone`, no variable is needed (there `node tools/build.js` builds the
+disks). `TERM.COM` (4.0K) and `IRC.COM` (6.5K) are not kept in git: the releases carry them, with the
+`.DIR` files. The version is in [VERSION](VERSION), the history in [CHANGELOG.md](CHANGELOG.md).
+Both builds make the same program: DigitalRerun's own test builds both ways and
 compares them.
 
 ## Files
@@ -175,11 +177,13 @@ compares them.
 |---|---|
 | `term.asm`, `irc.asm` | the sources |
 | `MAKE.SUB`, `MAKEALL.SUB` | build on CP/M: `SUBMIT B:MAKEALL` |
-| `TERM.COM`, `IRC.COM` | as built |
+| `TERM.COM`, `IRC.COM` | as built (not in git: the releases) |
 | `build.js`, `test/` | the build and its check; the directories' limits |
 | `TERM.DIR`, `IRC.DIR` | ready-made directories of places to go |
 | `docs/` | the disk's readme, the screenshots |
 
 ## Licence
 
-MIT, see [LICENSE](LICENSE). Copyright (c) 2026 Costin Stroie.
+MIT, see [LICENSE](LICENSE). Copyright (c) 2026 Costin Stroie. Dialtone is a separate project from
+DigitalRerun: DigitalRerun only builds and ships the programs, under this same licence, and its own
+licence terms do not apply to them.
