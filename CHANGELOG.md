@@ -4,6 +4,12 @@ Releases carry the `.COM` files and the ready-made `.DIR` files.
 
 ## 1.3.0 (unreleased)
 
+- **NEWS**: a Usenet reader (NNTP), built like GOPHER. A group's last 22 articles, the newest first
+  (who and the subject, from `OVER`, or `XOVER`), `O` the older ones; an article with its From,
+  Subject, Date and Newsgroups, the body cut at 79 columns; `L` the groups of a server like a
+  pattern; the way back, go to an address, save to a file; a home menu from `NEWS.DIR`. The call
+  stays up from page to page; article numbers are 32 bits. Reads only. Port 119 plain, 563 with the
+  bridge's TLS (DigitalRerun's gateway passes both raw). `SUBMIT B:MAKEALL` builds all eight.
 - **IRC**: Ctrl-P and Ctrl-N (or the arrows) bring back the last 10 lines typed, commands too; a line of just
   `?` (or `/?`) is the help, which lists the history keys.
 - **GOPHER** and **GEMINI**: `?` lists the keys on a page of its own (any key goes back); the bottom row is a

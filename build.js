@@ -26,7 +26,7 @@ function com(asm, file) {
 
 /** The programs: their source and the .COM it makes. */
 const PROGRAMS = [['term.asm', 'TERM.COM'], ['irc.asm', 'IRC.COM'], ['gopher.asm', 'GOPHER.COM'], ['gemini.asm', 'GEMINI.COM'], ['mud.asm', 'MUD.COM'],
-    ['finger.asm', 'FINGER.COM'], ['nettime.asm', 'NETTIME.COM']];
+    ['finger.asm', 'FINGER.COM'], ['nettime.asm', 'NETTIME.COM'], ['news.asm', 'NEWS.COM']];
 
 module.exports = { loadAssembler, com, PROGRAMS };
 
