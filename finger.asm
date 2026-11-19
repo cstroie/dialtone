@@ -86,8 +86,7 @@ fromdir:sta	nth
 	jc	quitm
 	lxi	h,dirbuf
 fd1:	call	nextline
-	lxi	d,mnosuch
-	jc	quitm
+	jc	fdnone
 	lda	nth
 	dcr	a
 	sta	nth
@@ -107,6 +106,8 @@ fd3:	mov	a,m
 fd4:	xra	a
 	stax	d
 	ret
+fdnone:	lxi	d,mnosuch
+	jmp	quitm
 
 ;	FINGER alone: the lines of FINGER.DIR, numbered (no modem needed)
 showdir:call	loaddir
