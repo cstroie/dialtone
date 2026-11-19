@@ -134,6 +134,8 @@ telnet: through DigitalRerun's bridge any port works but the raw ones (13, 37, 7
 ```
 B>FINGER user@host          what someone's plan says (host:port for another port than 79)
 B>FINGER @host              who is on
+B>FINGER                    the lines of FINGER.DIR, numbered (no modem needed)
+B>FINGER 2                  what line 2 of FINGER.DIR asks
 B>NETTIME                   the time from time.nist.gov (daytime, port 13, NIST's format)
 B>NETTIME host +2           another clock; an offset from UTC: +h, -h or +h:mm
 ```
@@ -154,7 +156,7 @@ the data it holds, as a real one does (DigitalRerun's does).
 
 ## The directories
 
-`TERM.DIR`, `IRC.DIR`, `GOPHER.DIR` and `MUD.DIR` are plain text files beside the programs, one
+`TERM.DIR`, `IRC.DIR`, `GOPHER.DIR`, `MUD.DIR` and `FINGER.DIR` are plain text files beside the programs, one
 place per line, edited with any CP/M editor (`ED`). They ship here filled in, ready to copy next to the `.COM` files
 (copy them as text, so the file ends in a `^Z`):
 
@@ -163,6 +165,7 @@ TERM.DIR   the string to dial, then a name       telehack.com Telehack
 IRC.DIR    host[:port], then a name              irc.libera.chat:6667 Libera.Chat: free and open source projects
 GOPHER.DIR host[:port][/type/selector], a name   gopher.floodgap.com Floodgap: the hub of gopherspace
 MUD.DIR    host[:port], then a name              aardmud.org:4000 Aardwolf: a big, friendly, long-running MUD
+FINGER.DIR user@host or @host, then a name       oslo@graph.no The weather in Oslo
 ```
 
 - **TERM.DIR** lists up to 16 places, shown in two columns, so keep a line to 37 characters; the
@@ -175,6 +178,8 @@ MUD.DIR    host[:port], then a name              aardmud.org:4000 Aardwolf: a bi
 - **GOPHER.DIR** becomes the home menu, each line an item (a menu unless the address names
   another type); its name is cut at 70 characters.
 - **MUD.DIR** lists up to 16 worlds, as IRC.DIR does.
+- **FINGER.DIR** lists up to 16 questions: graph.no's weather (`city@graph.no`, `help@graph.no`
+  says how to ask) and who is on SDF.
 
 In DigitalRerun the files are generated at build time from the emulator's own dial list
 (`js/devices/directory.js`), because the numbers must match what its modem can dial; the files
@@ -244,7 +249,7 @@ node --test test/*.test.js     the directories' limits, ASM.COM's rules; the .CO
 
 With a `digital-rerun` folder next to this one, or inside DigitalRerun, where this repository is
 the submodule `system/dialtone`, no variable is needed (there `node tools/build.js` builds the
-disks). `TERM.COM` (4.0K), `IRC.COM` (6.5K), `GOPHER.COM` (4.1K), `MUD.COM` (3.6K), `FINGER.COM` (1.3K)
+disks). `TERM.COM` (4.0K), `IRC.COM` (6.5K), `GOPHER.COM` (4.1K), `MUD.COM` (3.6K), `FINGER.COM` (1.8K)
 and `NETTIME.COM` (2.7K) are not kept in git: the releases carry them, with the `.DIR` files. The version is in [VERSION](VERSION), the history in [CHANGELOG.md](CHANGELOG.md).
 Both builds make the same programs: DigitalRerun's own test builds both ways and
 compares them, and runs each program against made-up servers.
@@ -257,7 +262,7 @@ compares them, and runs each program against made-up servers.
 | `MAKE.SUB`, `MAKEALL.SUB` | build on CP/M: `SUBMIT B:MAKEALL` |
 | `*.COM` | as built (not in git: the releases) |
 | `build.js`, `test/` | the build and its check; the directories' limits |
-| `TERM.DIR`, `IRC.DIR`, `GOPHER.DIR`, `MUD.DIR` | ready-made directories of places to go |
+| `TERM.DIR`, `IRC.DIR`, `GOPHER.DIR`, `MUD.DIR`, `FINGER.DIR` | ready-made directories of places to go |
 | `docs/` | the disk's readme, the screenshots |
 
 ## Licence

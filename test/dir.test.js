@@ -1,7 +1,7 @@
 'use strict';
 // The example directories are real lists the programs can read: TERM shows at most
 // 16 entries, each in a column of 38 characters; IRC and MUD list 16, a line of 76; GOPHER
-// makes its home menu of them (an address, then a name of 70 at most).
+// makes its home menu of them (an address, then a name of 70 at most); FINGER lists 16.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -36,4 +36,10 @@ test('MUD.DIR: host:port and a name; no port the bridge passes raw (a MUD wants 
         assert.ok(m, e);
         assert.ok(![13, 37, 70, 79].includes(+m[1]) && !(+m[1] >= 6660 && +m[1] <= 6669), e);
     }
+});
+
+test('FINGER.DIR: user@host or @host (host[:port]) and a name; 16 at most, a line of 76', () => {
+    const l = lines('FINGER.DIR');
+    assert.ok(l.length >= 3 && l.length <= 16, `${l.length} entries`);
+    for (const e of l) { assert.ok(e.length <= 74, e); assert.match(e, /^[^\s@]*@[a-z0-9.-]+(:\d+)? \S/, e); }
 });

@@ -10,7 +10,8 @@ Four more programs, on the same modem and in the same `ASM.COM` dialect; `SUBMIT
   address, save a page as CP/M text; a home menu from `GOPHER.DIR`.
 - **MUD**: a client for text worlds on IRC's screen: the world's text above, your line below, never broken by it;
   ANSI codes left out, Ctrl-P/N history, a password shown as stars and not kept; `MUD.DIR`.
-- **FINGER**: `user@host` or `@host`, a page at a time.
+- **FINGER**: `user@host` or `@host`, a page at a time; alone it lists `FINGER.DIR` (graph.no's weather, who is on
+  SDF), and `FINGER 2` asks its second line.
 - **NETTIME**: the time from a NIST daytime server, how far the machine's clock is from it, and under CP/M 3 the date
   and time set (with an offset) and read back.
 - A test keeps the sources to what `ASM.COM` takes; `MAKEALL.SUB` is checked against the list of programs.
