@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /*
- * build.js: assemble TERM.COM and IRC.COM.
+ * build.js: assemble TERM.COM, IRC.COM, GOPHER.COM, MUD.COM, FINGER.COM and NETTIME.COM.
  *
  *   node build.js [outdir]
  *
@@ -24,13 +24,17 @@ function com(asm, file) {
     return Buffer.from(r.image(0x100, r.high));
 }
 
-module.exports = { loadAssembler, com };
+/** The programs: their source and the .COM it makes. */
+const PROGRAMS = [['term.asm', 'TERM.COM'], ['irc.asm', 'IRC.COM'], ['gopher.asm', 'GOPHER.COM'], ['mud.asm', 'MUD.COM'],
+    ['finger.asm', 'FINGER.COM'], ['nettime.asm', 'NETTIME.COM']];
+
+module.exports = { loadAssembler, com, PROGRAMS };
 
 if (require.main === module) {
     const asm = loadAssembler();
     if (!asm) { console.error('no assembler: clone digital-rerun next to this folder, or set ASM8080=<it>/js/asm8080.js'); process.exit(1); }
     const out = process.argv[2] || __dirname;
-    for (const [src, name] of [['term.asm', 'TERM.COM'], ['irc.asm', 'IRC.COM']]) {
+    for (const [src, name] of PROGRAMS) {
         const img = com(asm, src);
         fs.writeFileSync(path.join(out, name), img);
         console.log(`${name}: ${img.length} bytes`);
