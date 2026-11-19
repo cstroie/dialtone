@@ -2,6 +2,15 @@
 
 Releases carry the `.COM` files and the ready-made `.DIR` files.
 
+## 1.2.0 (2026-11-19)
+
+- **GEMINI**: a Gemini client, built like GOPHER. Gemtext laid out for 80 columns (headings bold,
+  paragraphs wrapped at the words, lists and quotes set in, preformatted text as it is), links
+  numbered and followed with relative addresses resolved, input (`1x`) asked and sent encoded,
+  redirects followed, errors shown; the way back, go to an address, save the gemtext; a home page
+  from `GEMINI.DIR`. TLS is the modem bridge's (an 8080 cannot do it): DigitalRerun's speaks it for
+  port 1965. `SUBMIT B:MAKEALL` builds all seven.
+
 ## 1.1.0 (2026-11-19)
 
 Four more programs, on the same modem and in the same `ASM.COM` dialect; `SUBMIT B:MAKEALL` builds all six.

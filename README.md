@@ -2,9 +2,9 @@
 
 Programs for a CP/M machine with a modem on its serial port: **TERM**, a terminal you
 dial out with (a bulletin board, a telnet host, XMODEM file transfer), **IRC**, an IRC
-client, **GOPHER**, a Gopher client, **MUD**, a client for text worlds, and two small ones,
-**FINGER** and **NETTIME**. 8080 assembly, CP/M 2.2, a VT100 screen of 80x24, plain ASCII, no
-colour. Together about 22K of program.
+client, **GOPHER** and **GEMINI**, clients for gopherspace and Geminispace, **MUD**, a client for
+text worlds, and two small ones, **FINGER** and **NETTIME**. 8080 assembly, CP/M 2.2, a VT100 screen
+of 80x24, plain ASCII, no colour. Together about 28K of program.
 
 | TERM | IRC |
 |---|---|
@@ -111,6 +111,40 @@ A page can take as much as the TPA leaves (about 45K on a 64K machine); more is 
 line comes in capitals from the CCP, so GOPHER takes it in lower case: a selector with capitals is
 typed at `G` instead.
 
+## GEMINI
+
+A Gemini client, built like GOPHER: alone it shows `GEMINI.DIR` as a home page of links; with an
+address it goes there at once.
+
+```
+B>GEMINI                                  the home page (GEMINI.DIR)
+B>GEMINI geminiprotocol.net               a capsule (port 1965)
+B>GEMINI gemini://host:1966/path/         gemini:// may lead; another port
+```
+
+**TLS is the bridge's.** Gemini needs TLS on every request, which an 8080 cannot do (one handshake
+would take minutes): the modem's other end must speak it. DigitalRerun's bridge does, for port 1965
+(`&tls=1`; see its docs), and trusts a capsule's certificate the first time, refusing another one
+later, as Gemini wants. On another machine you need a modem or a proxy that does the same.
+
+A page is read whole, then shown. Gemtext is laid out for 80 columns: `#` headings bold, paragraphs
+wrapped at the words, `* ` lists and `>` quotes set in, preformatted blocks (between ```` ``` ````
+lines) as they are, cut at 79 columns. `=>` links are numbered; a link with no name shows its
+address. Other text types (`text/plain`...) are shown as they are; anything else says it is not text.
+
+| Key | |
+|---|---|
+| a number, Return | follow that link (relative addresses, `..`, `?query` resolved against the page's) |
+| Space or `N`, `P` or `-` | the next page, the one before |
+| `B`, `G`, `H`, `R` | back (the page before is read again); go to an address; home; this page again |
+| `W` | save the page's gemtext to a file (`d:name.typ`) |
+| `Q` | quit |
+
+The answer's status is followed: `10`/`11` ask for words (the prompt is the capsule's) and send them
+percent-encoded after a `?`; `3x` redirects (five at most); `4x`, `5x` and `6x` (client certificates,
+which GEMINI has none of) show what the capsule says on a page of their own. Links to other schemes
+(`https:`, `gopher:`, `mailto:`) are refused with a word. Up to 255 links and 1500 rows a page.
+
 ## MUD
 
 IRC's screen for text worlds: a status bar on top, what the world says in rows 2-23, your line on
@@ -147,7 +181,7 @@ the date and the time (UTC and the offset), reads them back and says whether the
 
 ## The connection
 
-GOPHER, MUD, FINGER and NETTIME share one block of modem code, copied into each source (`ASM.COM`
+GOPHER, GEMINI, MUD, FINGER and NETTIME share one block of modem code, copied into each source (`ASM.COM`
 has no include): a ring for what comes in (filled between every character printed), `ATE0` at the
 start and `ATE1` at the end (TERM expects the echo), `ATDT host:port`, the modem's `CONNECT` line
 skipped, a minute to answer (a key gives up), and DTR dropped to hang up. A host that answers and
@@ -156,7 +190,7 @@ the data it holds, as a real one does (DigitalRerun's does).
 
 ## The directories
 
-`TERM.DIR`, `IRC.DIR`, `GOPHER.DIR`, `MUD.DIR` and `FINGER.DIR` are plain text files beside the programs, one
+`TERM.DIR`, `IRC.DIR`, `GOPHER.DIR`, `GEMINI.DIR`, `MUD.DIR` and `FINGER.DIR` are plain text files beside the programs, one
 place per line, edited with any CP/M editor (`ED`). They ship here filled in, ready to copy next to the `.COM` files
 (copy them as text, so the file ends in a `^Z`):
 
@@ -164,6 +198,7 @@ place per line, edited with any CP/M editor (`ED`). They ship here filled in, re
 TERM.DIR   the string to dial, then a name       telehack.com Telehack
 IRC.DIR    host[:port], then a name              irc.libera.chat:6667 Libera.Chat: free and open source projects
 GOPHER.DIR host[:port][/type/selector], a name   gopher.floodgap.com Floodgap: the hub of gopherspace
+GEMINI.DIR a gemini:// address, then a name      gemini://geminiprotocol.net/ Project Gemini
 MUD.DIR    host[:port], then a name              aardmud.org:4000 Aardwolf: a big, friendly, long-running MUD
 FINGER.DIR user@host or @host, then a name       oslo@graph.no The weather in Oslo
 ```
@@ -177,6 +212,7 @@ FINGER.DIR user@host or @host, then a name       oslo@graph.no The weather in Os
   numbered; `/connect 3` dials the third.
 - **GOPHER.DIR** becomes the home menu, each line an item (a menu unless the address names
   another type); its name is cut at 70 characters.
+- **GEMINI.DIR** becomes the home page, each line a link.
 - **MUD.DIR** lists up to 16 worlds, as IRC.DIR does.
 - **FINGER.DIR** lists up to 16 questions: graph.no's weather (`city@graph.no`, `help@graph.no`
   says how to ask) and who is on SDF.
@@ -217,7 +253,7 @@ in B: with the `.ASM` files, `MAKE.SUB` and `MAKEALL.SUB` (copied as text; on Di
 the **Online** disk already has them, and the `.COM` files get rebuilt in place):
 
 ```
-A>SUBMIT B:MAKEALL          all six
+A>SUBMIT B:MAKEALL          all seven
 A>SUBMIT B:MAKE GOPHER      one of them
 ```
 
@@ -229,7 +265,7 @@ LOAD B:$1           .HEX to .COM
 ERA B:$1.HEX
 ```
 
-On the 4 MHz emulator `TERM` takes about 25 seconds and `IRC` about 40, `GOPHER` about 30 (a real floppy is slower). For a listing, use `ASM IRC.BBX`
+On the 4 MHz emulator `TERM` takes about 25 seconds and `IRC` about 40, `GOPHER` about 30, `GEMINI` about 45 (a real floppy is slower). For a listing, use `ASM IRC.BBX`
 (the listing goes to the screen) or `ASM IRC.BBB` (to `IRC.PRN` on B:).
 Things `ASM.COM` does not take, which the sources keep to: no label that is an 8080
 mnemonic (`cm`, `cz`...), no string over 64 characters in one `db` operand, no `!` in a
@@ -249,7 +285,7 @@ node --test test/*.test.js     the directories' limits, ASM.COM's rules; the .CO
 
 With a `digital-rerun` folder next to this one, or inside DigitalRerun, where this repository is
 the submodule `system/dialtone`, no variable is needed (there `node tools/build.js` builds the
-disks). `TERM.COM` (4.0K), `IRC.COM` (6.5K), `GOPHER.COM` (4.1K), `MUD.COM` (3.6K), `FINGER.COM` (1.8K)
+disks). `TERM.COM` (4.0K), `IRC.COM` (6.5K), `GOPHER.COM` (4.1K), `GEMINI.COM` (5.4K), `MUD.COM` (3.6K), `FINGER.COM` (1.8K)
 and `NETTIME.COM` (2.7K) are not kept in git: the releases carry them, with the `.DIR` files. The version is in [VERSION](VERSION), the history in [CHANGELOG.md](CHANGELOG.md).
 Both builds make the same programs: DigitalRerun's own test builds both ways and
 compares them, and runs each program against made-up servers.
@@ -258,11 +294,11 @@ compares them, and runs each program against made-up servers.
 
 | File | |
 |---|---|
-| `term.asm`, `irc.asm`, `gopher.asm`, `mud.asm`, `finger.asm`, `nettime.asm` | the sources |
+| `term.asm`, `irc.asm`, `gopher.asm`, `gemini.asm`, `mud.asm`, `finger.asm`, `nettime.asm` | the sources |
 | `MAKE.SUB`, `MAKEALL.SUB` | build on CP/M: `SUBMIT B:MAKEALL` |
 | `*.COM` | as built (not in git: the releases) |
 | `build.js`, `test/` | the build and its check; the directories' limits |
-| `TERM.DIR`, `IRC.DIR`, `GOPHER.DIR`, `MUD.DIR`, `FINGER.DIR` | ready-made directories of places to go |
+| `TERM.DIR`, `IRC.DIR`, `GOPHER.DIR`, `GEMINI.DIR`, `MUD.DIR`, `FINGER.DIR` | ready-made directories of places to go |
 | `docs/` | the disk's readme, the screenshots |
 
 ## Licence

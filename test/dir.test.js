@@ -43,3 +43,9 @@ test('FINGER.DIR: user@host or @host (host[:port]) and a name; 16 at most, a lin
     assert.ok(l.length >= 3 && l.length <= 16, `${l.length} entries`);
     for (const e of l) { assert.ok(e.length <= 74, e); assert.match(e, /^[^\s@]*@[a-z0-9.-]+(:\d+)? \S/, e); }
 });
+
+test('GEMINI.DIR: a gemini:// address and a name', () => {
+    const l = lines('GEMINI.DIR');
+    assert.ok(l.length >= 1 && l.length <= 40, `${l.length} entries`);
+    for (const e of l) assert.match(e, /^gemini:\/\/[a-z0-9.-]+(:\d+)?\/\S* \S/, e);
+});

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /*
- * build.js: assemble TERM.COM, IRC.COM, GOPHER.COM, MUD.COM, FINGER.COM and NETTIME.COM.
+ * build.js: assemble TERM.COM, IRC.COM, GOPHER.COM, GEMINI.COM, MUD.COM, FINGER.COM and NETTIME.COM.
  *
  *   node build.js [outdir]
  *
@@ -25,7 +25,7 @@ function com(asm, file) {
 }
 
 /** The programs: their source and the .COM it makes. */
-const PROGRAMS = [['term.asm', 'TERM.COM'], ['irc.asm', 'IRC.COM'], ['gopher.asm', 'GOPHER.COM'], ['mud.asm', 'MUD.COM'],
+const PROGRAMS = [['term.asm', 'TERM.COM'], ['irc.asm', 'IRC.COM'], ['gopher.asm', 'GOPHER.COM'], ['gemini.asm', 'GEMINI.COM'], ['mud.asm', 'MUD.COM'],
     ['finger.asm', 'FINGER.COM'], ['nettime.asm', 'NETTIME.COM']];
 
 module.exports = { loadAssembler, com, PROGRAMS };
