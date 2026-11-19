@@ -2,7 +2,7 @@
 
 Releases carry the `.COM` files and the ready-made `.DIR` files.
 
-## 1.3.0 (unreleased)
+## 1.3.0 (2026-11-19)
 
 - **NEWS**: a Usenet reader (NNTP), built like GOPHER. A group's last 22 articles, the newest first
   (who and the subject, from `OVER`, or `XOVER`), `O` the older ones; an article with its From,
