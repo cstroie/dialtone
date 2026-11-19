@@ -2,6 +2,16 @@
 
 Releases carry the `.COM` files and the ready-made `.DIR` files.
 
+## 1.3.0 (unreleased)
+
+- **IRC**: Ctrl-P and Ctrl-N (or the arrows) bring back the last 10 lines typed, commands too; a line of just
+  `?` (or `/?`) is the help, which lists the history keys.
+- **GOPHER** and **GEMINI**: `?` lists the keys on a page of its own (any key goes back); the bottom row is a
+  short list now (`?` is the rest); at the G and search prompts Ctrl-P and Ctrl-N bring back the last 10 lines.
+  GEMINI's bottom row also says how many links the page has.
+- **MUD**: the history is 10 lines (was 8).
+- **GOPHER.DIR** and **GEMINI.DIR**: koremoon.duckdns.org (gopher on 70, Gemini on 1965).
+
 ## 1.2.0 (2026-11-19)
 
 - **GEMINI**: a Gemini client, built like GOPHER. Gemtext laid out for 80 columns (headings bold,

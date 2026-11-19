@@ -69,6 +69,8 @@ begins with a slash.
 | `/raw line` | a line to the server as it is |
 | `/quit [text]`, `/bye [text]` | hang up (IRC stays); hang up and leave |
 | `/help`, `/clear` | the commands, grouped; clear the screen |
+| `?` (alone on a line), `/?` | the same help |
+| Ctrl-P, Ctrl-N, or the arrows | the last 10 lines you typed, brought back (Ctrl-U clears) |
 
 From the command line, `IRC` takes the same as `/connect` and dials at once:
 
@@ -95,15 +97,16 @@ B>GOPHER sdf.org/1/users                  host[:port]/type/selector (gopher:// m
 The selector is what follows the type, as RFC 4266 has it (`/1/users` is type 1, selector
 `/users`). A page is read whole, at the line's speed, with the count of bytes on the bottom row
 (Esc stops it and keeps what came), then shown: a menu with its items numbered, a text cut at 79
-columns. The top row says where you are, the bottom row which lines of how many and the keys.
+columns. The top row says where you are; the bottom row says which lines of how many are shown, and a short list of the keys (`?` lists them all).
 
 | Key | |
 |---|---|
 | a number, Return | follow that item: a text, another menu, a search (it asks for the words) |
 | Space or `N`, `P` or `-` | the next page, the one before; Return alone is the next page too |
 | `B` | back (the way of 8 places is kept, not the pages: the page before is read again) |
-| `G`, `H`, `R` | go to an address typed; home; read this page again |
+| `G`, `H`, `R` | go to an address typed (Ctrl-P, Ctrl-N: the 10 typed before); home; read this page again |
 | `W` | save the page shown to a file, as CP/M text (`d:name.typ`) |
+| `?` | the keys, on a page of their own (any key goes back) |
 | `Q` | quit |
 
 Kinds it does not show (binaries, pictures, the web) are listed with their type and not followed.
@@ -136,8 +139,9 @@ address. Other text types (`text/plain`...) are shown as they are; anything else
 |---|---|
 | a number, Return | follow that link (relative addresses, `..`, `?query` resolved against the page's) |
 | Space or `N`, `P` or `-` | the next page, the one before |
-| `B`, `G`, `H`, `R` | back (the page before is read again); go to an address; home; this page again |
+| `B`, `G`, `H`, `R` | back (the page before is read again); go to an address (Ctrl-P, Ctrl-N: the 10 typed before); home; this page again |
 | `W` | save the page's gemtext to a file (`d:name.typ`) |
+| `?` | the keys, on a page of their own (any key goes back) |
 | `Q` | quit |
 
 The answer's status is followed: `10`/`11` ask for words (the prompt is the capsule's) and send them
@@ -149,7 +153,7 @@ which GEMINI has none of) show what the capsule says on a page of their own. Lin
 
 IRC's screen for text worlds: a status bar on top, what the world says in rows 2-23, your line on
 row 24, so what comes in never breaks what you type. Return sends the line, an empty one too (the
-worlds use it for "more"); Ctrl-P and Ctrl-N, or the arrow keys, bring back the last 8 lines;
+worlds use it for "more"); Ctrl-P and Ctrl-N, or the arrow keys, bring back the last 10 lines;
 Ctrl-U clears. ANSI colour and the other escape codes are left out. After a prompt with
 `password` in it, the next line shows as stars and is not kept.
 
