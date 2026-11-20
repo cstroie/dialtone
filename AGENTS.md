@@ -14,7 +14,7 @@ shelf disk. Read the README first: it has the hardware ports and the `ASM.COM` d
   `;<tab>include net.asm` where `build.js` (`source()`) joins it, as ASM.COM has no include. Anything that
   assembles a program or puts its source on a disk uses `source()`, never the raw file. GOPHER, GEMINI and NEWS share the
   page viewer's routines (the screen, the input line and its history, saving, numbers, the directory file) in `view.asm`,
-  joined the same way. What is still alike but kept apart (the way back, `prompt`, the keys) is copied: a fix in one goes into the others. A new program goes into `PROGRAMS` and `MAKEALL.SUB`.
+  joined the same way; TERM, IRC, MUD and FINGER their directory file (`loaddir` ...) in `dir.asm`. What is still alike but kept apart (the way back, `prompt`, the keys) is copied: a fix in one goes into the others. A new program goes into `PROGRAMS` and `MAKEALL.SUB`.
 - Keep to what `ASM.COM` takes (no label that is an 8080 mnemonic, no `db` string over 64
   characters, no `!` in a comment, no `HIGH`/`LOW`/`$` in `ds`), or the CP/M build breaks (a test checks
   the first three).

@@ -586,56 +586,6 @@ keych:	cpi	9
 kc1:	adi	'1'
 	ret
 
-;	read TERM.DIR into DIRBUF (^Z ends it); CY set: no such file
-loaddir:lxi	h,fcb
-	mvi	c,36
-	xra	a
-ld0:	mov	m,a
-	inx	h
-	dcr	c
-	jnz	ld0
-	lxi	h,fcb+1
-	lxi	d,dirname
-	mvi	c,11
-ld1:	ldax	d
-	mov	m,a
-	inx	h
-	inx	d
-	dcr	c
-	jnz	ld1
-	lxi	d,fcb
-	mvi	c,openf
-	call	bdos
-	inr	a
-	jnz	ld2
-	stc
-	ret
-ld2:	lxi	h,dirbuf
-ld3:	push	h
-	xchg
-	mvi	c,setdma
-	call	bdos
-	lxi	d,fcb
-	mvi	c,readsq
-	call	bdos
-	pop	h
-	ora	a
-	jnz	ld4		;the end of the file
-	lxi	d,128
-	dad	d
-	lxi	d,dirend
-	mov	a,l
-	sub	e
-	mov	a,h
-	sbb	d
-	jc	ld3
-ld4:	mvi	m,1ah
-	lxi	d,80h
-	mvi	c,setdma
-	call	bdos
-	xra	a
-	ret
-
 ;	---- the command line: A>TERM telehack.com, A>TERM 0100, A>TERM telehack ----
 
 ;	the first word of the command line into CMDARG, in lower case (0-ended, 24 characters at most)
@@ -1218,6 +1168,8 @@ purge:	lxi	h,300
 	jnc	purge
 	ret
 
+;	---- the directory file ----
+;	include dir.asm		(build.js joins DIR.ASM here: the copy on a disk is whole)
 
 pend:	db	0		;a key waiting for the transmitter
 outq:	dw	0		;the menu's text for the modem, when there is some

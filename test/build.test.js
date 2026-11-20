@@ -30,7 +30,7 @@ test('the sources keep to what ASM.COM takes: no label that is a mnemonic, no st
     const mnemonics = new Set(('MOV MVI LXI LDA STA LHLD SHLD LDAX STAX XCHG ADD ADI ADC ACI SUB SUI SBB SBI INR DCR INX DCX DAD DAA ' +
         'ANA ANI ORA ORI XRA XRI CMP CPI RLC RRC RAL RAR CMA CMC STC JMP JNZ JZ JNC JC JPO JPE JP JM CALL CNZ CZ CNC CC CPO CPE CP CM ' +
         'RET RNZ RZ RNC RC RPO RPE RP RM RST PCHL SPHL XTHL IN OUT EI DI HLT NOP PUSH POP A B C D E H L M SP PSW').split(' '));
-    for (const src of [...PROGRAMS.map(([s]) => s), 'net.asm', 'view.asm']) {
+    for (const src of [...PROGRAMS.map(([s]) => s), 'net.asm', 'view.asm', 'dir.asm']) {
         fs.readFileSync(path.join(__dirname, '..', src), 'latin1').split('\n').forEach((line, i) => {
             const at = `${src}:${i + 1}`;
             const label = /^([A-Za-z_][A-Za-z0-9_]*)/.exec(line);
@@ -42,7 +42,7 @@ test('the sources keep to what ASM.COM takes: no label that is a mnemonic, no st
     }
 });
 
-for (const [part, mark] of [['net.asm', '\npoll:\tpush\tpsw\n'], ['view.asm', '\nmkfcb:']]) {
+for (const [part, mark] of [['net.asm', '\npoll:\tpush\tpsw\n'], ['view.asm', '\nmkfcb:'], ['dir.asm', '\nloaddir:']]) {
     test(`${part.toUpperCase()} is joined whole where a program includes it, and only there`, () => {
         const whole = fs.readFileSync(path.join(__dirname, '..', part), 'latin1');
         const want = new RegExp(`^;\\tinclude ${part.replace('.', '\\.')}`, 'm');
