@@ -57,7 +57,9 @@ have:	lxi	h,0
 	out	mctl
 	xra	a
 	sta	rhead
+	sta	rhead+1
 	sta	rtail
+	sta	rtail+1
 	sta	dcd		;the first look at the carrier tells if a call is up
 	sta	dialing
 	sta	reg
@@ -121,117 +123,14 @@ cdown:	xra	a
 cstat:	call	drawstat
 	jmp	loop
 
-;	---- the modem: a ring of what came, and the way out ----
+;	---- the modem: NET.ASM (its ring is the page at RING, 3000h) ----
+;	include net.asm		(build.js joins NET.ASM here: the copy on a disk is whole)
 
-;	move what the modem has into the ring (all registers kept)
-poll:	push	psw
-	push	b
-	push	h
-pl1:	in	mst
-	ani	1
-	jz	pl9
-	lda	rhead
-	mov	b,a		;B = head
-	inr	a		;A = head + 1
-	lxi	h,rtail
-	cmp	m		;the ring is full when head + 1 is the tail
-	jz	pl9
-	sta	rhead
-	in	mdat
-	mov	c,a
-	mov	l,b
-	mvi	h,ringhi
-	mov	m,c
-	jmp	pl1
-pl9:	pop	h
-	pop	b
-	pop	psw
-	ret
-
-;	a byte of the ring into A; CY set if it is empty (H and L kept)
-rget:	push	h
-	lda	rtail
-	lxi	h,rhead
-	cmp	m
-	jnz	rg1
-	pop	h
-	stc
-	ret
-rg1:	mov	l,a
-	inr	a
-	sta	rtail
-	mvi	h,ringhi
-	mov	a,m
-	pop	h
-	ora	a		;CY clear
-	ret
-
-;	send A to the modem when it may take it (the receiver is looked at meanwhile)
-txb:	push	psw
-tb1:	call	poll
-	in	mst
-	ani	2
-	jz	tb1
-	pop	psw
-	out	mdat
-	ret
-
-;	send the 0-ended text at HL
-txz:	mov	a,m
-	ora	a
-	rz
-	inx	h
-	call	txb
-	jmp	txz
-
-;	the low 16 bits of the clock's milliseconds into HL
-now:	xra	a
-	out	clk		;latch the record
-	mvi	b,11
-now1:	in	clk
-	dcr	b
-	jnz	now1
-	in	clk
-	mov	l,a
-	in	clk
-	mov	h,a
-	ret
-
-;	wait HL milliseconds, the modem looked at meanwhile
-delay:	push	h
-	call	now
-	shld	t0
-	pop	h
-	shld	tlim
-dl1:	call	poll
-	call	now
-	xchg			;DE = now
-	lhld	t0
-	mov	a,e
-	sub	l
-	mov	l,a
-	mov	a,d
-	sbb	h
-	mov	h,a
-	xchg			;DE = elapsed
-	lhld	tlim
-	mov	a,e
-	sub	l
-	mov	a,d
-	sbb	h
-	jc	dl1
-	ret
-
-;	DTR down and up again: the call is dropped
-hangup:	xra	a
+;	hang up (NET.ASM), and nothing is dialing or registered any more
+ihang:	xra	a
 	sta	dialing
 	sta	reg
-	out	mctl
-	lxi	h,50
-	call	delay
-	mvi	a,1
-	out	mctl
-	ret
+	jmp	hangup
 
 ;	---- the screen ----
 
@@ -1145,11 +1044,11 @@ cquit:	lda	dcd
 	jnz	cq1
 	lda	dialing
 	ora	a
-	jnz	hangup		;a dial in progress: give it up
+	jnz	ihang		;a dial in progress: give it up
 	lxi	h,mnocon
 	jmp	info
 cq1:	call	sayquit
-	jmp	hangup
+	jmp	ihang
 sayquit:call	bnew
 	lxi	h,squit
 	call	bstr
@@ -1169,10 +1068,10 @@ cbye:	lda	dcd
 	cnz	sayquit
 	lda	dcd
 	ora	a
-	cnz	hangup
+	cnz	ihang
 	lda	dialing
 	ora	a
-	cnz	hangup
+	cnz	ihang
 exit:	in	mst
 	ani	4
 	jnz	ex1
@@ -1222,7 +1121,7 @@ cc2:	lhld	w1
 	call	findkey
 	jnc	cc4
 cc3:	lhld	w1
-cc4:	call	mkdial
+cc4:	call	ircdial
 	jmp	docall
 cc8:	lxi	h,malready
 	jmp	info
@@ -1235,59 +1134,59 @@ nosuch:	lxi	h,mnosuch
 
 ;	the dial string ATDT host[:port] CR from the text at HL (ended by a blank or any control character);
 ;	a name with no port gets 6667
-mkdial:	lxi	d,dialbuf+4
+ircdial:lxi	d,dialbuf+4
 	mvi	b,40
-md1:	mov	a,m
+id1:	mov	a,m
 	cpi	21h
-	jc	md2
+	jc	id2
 	stax	d
 	inx	h
 	inx	d
 	dcr	b
-	jnz	md1
-md2:	xra	a
+	jnz	id1
+id2:	xra	a
 	stax	d
 	push	d
 	lxi	h,dialbuf+4
 	mvi	c,0		;bit 0: a colon, bit 1: a letter or a dot
-md3:	mov	a,m
+id3:	mov	a,m
 	ora	a
-	jz	md6
+	jz	id6
 	cpi	':'
-	jnz	md4
+	jnz	id4
 	mov	a,c
 	ori	1
 	mov	c,a
-	jmp	md5
-md4:	cpi	'.'
-	jz	md4a
+	jmp	id5
+id4:	cpi	'.'
+	jz	id4a
 	cpi	'A'
-	jc	md5
-md4a:	mov	a,c
+	jc	id5
+id4a:	mov	a,c
 	ori	2
 	mov	c,a
-md5:	inx	h
-	jmp	md3
-md6:	pop	d
+id5:	inx	h
+	jmp	id3
+id6:	pop	d
 	mov	a,c
 	cpi	2
-	jnz	md8
+	jnz	id8
 	lxi	h,sport
-md7:	mov	a,m
+id7:	mov	a,m
 	ora	a
-	jz	md8
+	jz	id8
 	stax	d
 	inx	h
 	inx	d
-	jmp	md7
-md8:	mvi	a,cr
+	jmp	id7
+id8:	mvi	a,cr
 	stax	d
 	inx	d
 	xra	a
 	stax	d
 	ret
 
-;	dial what MKDIAL made
+;	dial what IRCDIAL made
 docall:	lxi	h,dialbuf+4
 	lxi	d,srvname
 	mvi	b,30
@@ -1309,7 +1208,7 @@ dcl2:	xra	a
 	call	mbeg
 	lxi	h,sstar
 	call	mputz
-	lxi	h,mdial
+	lxi	h,msdial
 	call	mputz
 	lxi	h,srvname
 	call	mputz
@@ -2114,7 +2013,9 @@ mnosuch:db	'No such entry in IRC.DIR.',0
 mpick:	db	'/connect n dials one of these, /connect host[:port] any other.',0
 malready:db	'Already connected: /quit first.',0
 mdialing:db	'Dialing already: /quit gives it up.',0
-mdial:	db	'Dialing ',0
+mcancel:db	'Given up.',0		;NET.ASM's MDIAL (IRC dials with its own loop)
+mnoans:	db	'No answer.',0
+msdial:	db	'Dialing ',0
 mtaken:	db	'That nick is taken, trying another.',0
 helptab:dw	hl0,hl1,hl2,hl3,hl4,hl5,hl6,hl7
 	dw	hl8,hl9,hl10,hl11,hl12,hl13,hl14,hl15
@@ -2197,8 +2098,8 @@ sdial:	db	'  dialing ',0
 sto:	db	'  talking to ',0
 snone:	db	'nobody',0
 sst2:	db	27,'[0m',27,'8',0
-rhead:	db	0
-rtail:	db	0
+rhead:	dw	0		;NET.ASM's ring: where the next byte goes, and the next to take
+rtail:	dw	0
 dcd:	db	0		;the carrier bit (0 or 4) as the loop last saw it
 dialing:db	0
 reg:	db	0		;1: the server has welcomed us (001)
@@ -2241,8 +2142,8 @@ hist:	ds	nhist*80
 fcb:	ds	36
 	ds	256
 stktop	equ	$
-ringhi	equ	30h		;the ring is a page of its own, above the program and its buffers
-ring	equ	3000h
+ring	equ	3000h		;the ring is a page of its own, above the program and its buffers
+rmask	equ	0		;256 bytes
 lbuf:	ds	520
 lend	equ	lbuf+510
 obuf:	ds	520

@@ -10,7 +10,8 @@ shelf disk. Read the README first: it has the hardware ports and the `ASM.COM` d
   `SUBMIT B:MAKEALL`. The `.COM` files are not in git; releases carry them.
 - Test: `node --test test/*.test.js`. The build checks skip without the assembler or the built
   files. `IRC` and its buffers must end below the ring at 3000h (a test keeps them there).
-  GOPHER, GEMINI, NEWS, MUD, FINGER and NETTIME share the modem code in `net.asm`: each source has a line
+  GOPHER, GEMINI, NEWS, MUD, FINGER and NETTIME share the modem code in `net.asm` (IRC too, but for the
+  dial: it keeps its own, which does not wait, and its ring stays the page at 3000h): each source has a line
   `;<tab>include net.asm` where `build.js` (`source()`) joins it, as ASM.COM has no include. Anything that
   assembles a program or puts its source on a disk uses `source()`, never the raw file. GOPHER, GEMINI and NEWS share the
   page viewer's routines (the screen, the input line and its history, saving, numbers, the directory file) in `view.asm`,

@@ -219,7 +219,8 @@ the date and the time (UTC and the offset), reads them back and says whether the
 
 ## The connection
 
-GOPHER, GEMINI, NEWS, MUD, FINGER and NETTIME share one block of modem code, `net.asm` (`ASM.COM`
+GOPHER, GEMINI, NEWS, MUD, FINGER and NETTIME share one block of modem code, `net.asm` (IRC takes its ring and
+its sending, timing and hanging up, and dials with a loop of its own, so that the screen goes on meanwhile) (`ASM.COM`
 has no include: `build.js` joins it into each source, see below): a ring for what comes in (filled between every character printed), `ATE0` at the
 start and `ATE1` at the end (TERM expects the echo), `ATDT host:port`, the modem's `CONNECT` line
 skipped, a minute to answer (a key gives up), and DTR dropped to hang up. A host that answers and
@@ -338,7 +339,7 @@ compares them, and runs each program against made-up servers.
 | File | |
 |---|---|
 | `term.asm`, `irc.asm`, `gopher.asm`, `gemini.asm`, `news.asm`, `mud.asm`, `finger.asm`, `nettime.asm` | the sources |
-| `net.asm` | the modem code of six of them, joined in by `build.js` (not a program) |
+| `net.asm` | the modem code of seven of them (IRC dials its own way), joined in by `build.js` (not a program) |
 | `view.asm` | the page viewer of GOPHER, GEMINI and NEWS (screen, input line and history, saving, numbers, the directory file), joined in the same way |
 | `dir.asm` | a directory file read and searched, for TERM, IRC, MUD and FINGER, joined in the same way |
 | `MAKE.SUB`, `MAKEALL.SUB` | build on CP/M: `SUBMIT B:MAKEALL` |
