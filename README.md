@@ -219,8 +219,8 @@ the date and the time (UTC and the offset), reads them back and says whether the
 
 ## The connection
 
-GOPHER, GEMINI, NEWS, MUD, FINGER and NETTIME share one block of modem code, copied into each source (`ASM.COM`
-has no include): a ring for what comes in (filled between every character printed), `ATE0` at the
+GOPHER, GEMINI, NEWS, MUD, FINGER and NETTIME share one block of modem code, `net.asm` (`ASM.COM`
+has no include: `build.js` joins it into each source, see below): a ring for what comes in (filled between every character printed), `ATE0` at the
 start and `ATE1` at the end (TERM expects the echo), `ATDT host:port`, the modem's `CONNECT` line
 skipped, a minute to answer (a key gives up), and DTR dropped to hang up. A host that answers and
 hangs up (finger, daytime, gopher) is read until the carrier goes (NEWS reads up to the line of a dot instead): the modem must drop DCD after
@@ -291,7 +291,9 @@ as above.
 The sources are 8080 code in the dialect of CP/M's own `ASM.COM`, so the machine can build
 them with what it ships with: `ASM`, `LOAD` and `SUBMIT`. Put the system disk in A: and a disk
 in B: with the `.ASM` files, `MAKE.SUB` and `MAKEALL.SUB` (copied as text; on DigitalRerun
-the **Online** disk already has them, and the `.COM` files get rebuilt in place):
+the **Dialtone** disk already has them, and the `.COM` files get rebuilt in place). Those `.ASM` files are the
+whole ones that `node build.js <outdir>` writes (or a release carries), with `net.asm` joined in: the ones in
+this repository have a line `;	include net.asm` instead, which `ASM.COM` would take for a comment:
 
 ```
 A>SUBMIT B:MAKEALL          all eight
@@ -320,7 +322,7 @@ DigitalRerun's [`js/asm8080.js`](https://github.com/cstroie/digital-rerun/blob/m
 assembles them (no dependencies):
 
 ```
-ASM8080=/path/to/digital-rerun/js/asm8080.js node build.js [outdir]
+ASM8080=/path/to/digital-rerun/js/asm8080.js node build.js [outdir]     another outdir gets the whole .ASM files too
 node --test test/*.test.js     the directories' limits, ASM.COM's rules; the .COM files against the sources
 ```
 
@@ -336,6 +338,7 @@ compares them, and runs each program against made-up servers.
 | File | |
 |---|---|
 | `term.asm`, `irc.asm`, `gopher.asm`, `gemini.asm`, `news.asm`, `mud.asm`, `finger.asm`, `nettime.asm` | the sources |
+| `net.asm` | the modem code of six of them, joined in by `build.js` (not a program) |
 | `MAKE.SUB`, `MAKEALL.SUB` | build on CP/M: `SUBMIT B:MAKEALL` |
 | `*.COM` | as built (not in git: the releases) |
 | `build.js`, `test/` | the build and its check; the directories' limits |

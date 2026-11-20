@@ -10,8 +10,9 @@ shelf disk. Read the README first: it has the hardware ports and the `ASM.COM` d
   `SUBMIT B:MAKEALL`. The `.COM` files are not in git; releases carry them.
 - Test: `node --test test/*.test.js`. The build checks skip without the assembler or the built
   files. `IRC` and its buffers must end below the ring at 3000h (a test keeps them there).
-  GOPHER, GEMINI, NEWS, MUD, FINGER and NETTIME share a block of modem code ("the same in FINGER, NETTIME,
-  GOPHER, MUD, GEMINI and NEWS"): a change to it goes into all six. GEMINI takes more of GOPHER's routines
+  GOPHER, GEMINI, NEWS, MUD, FINGER and NETTIME share the modem code in `net.asm`: each source has a line
+  `;<tab>include net.asm` where `build.js` (`source()`) joins it, as ASM.COM has no include. Anything that
+  assembles a program or puts its source on a disk uses `source()`, never the raw file. GEMINI takes more of GOPHER's routines
   (the way back, input, saving, numbers): they are copied, so a fix in one goes into the other. NEWS takes the same from GOPHER (its paging,
   input, saving, the way back), copied too. A new program goes into `PROGRAMS` and `MAKEALL.SUB`.
 - Keep to what `ASM.COM` takes (no label that is an 8080 mnemonic, no `db` string over 64

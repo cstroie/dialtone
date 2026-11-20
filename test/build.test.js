@@ -6,7 +6,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { loadAssembler, com, PROGRAMS } = require('../build.js');
+const { loadAssembler, source, com, PROGRAMS } = require('../build.js');
 
 const asm = loadAssembler();
 for (const [src, name] of PROGRAMS) {
@@ -17,7 +17,7 @@ for (const [src, name] of PROGRAMS) {
 }
 
 test('IRC and its buffers end below the ring at 3000h (irc.asm: RING)', { skip: !asm && 'no assembler (ASM8080)' }, () => {
-    const r = asm.assemble(fs.readFileSync(path.join(__dirname, '..', 'irc.asm'), 'latin1'), {});
+    const r = asm.assemble(source('irc.asm'), {});
     assert.ok(r.high < 0x3000, `the program and its buffers end at ${r.high.toString(16)}`);
 });
 
@@ -30,7 +30,7 @@ test('the sources keep to what ASM.COM takes: no label that is a mnemonic, no st
     const mnemonics = new Set(('MOV MVI LXI LDA STA LHLD SHLD LDAX STAX XCHG ADD ADI ADC ACI SUB SUI SBB SBI INR DCR INX DCX DAD DAA ' +
         'ANA ANI ORA ORI XRA XRI CMP CPI RLC RRC RAL RAR CMA CMC STC JMP JNZ JZ JNC JC JPO JPE JP JM CALL CNZ CZ CNC CC CPO CPE CP CM ' +
         'RET RNZ RZ RNC RC RPO RPE RP RM RST PCHL SPHL XTHL IN OUT EI DI HLT NOP PUSH POP A B C D E H L M SP PSW').split(' '));
-    for (const [src] of PROGRAMS) {
+    for (const src of [...PROGRAMS.map(([s]) => s), 'net.asm']) {
         fs.readFileSync(path.join(__dirname, '..', src), 'latin1').split('\n').forEach((line, i) => {
             const at = `${src}:${i + 1}`;
             const label = /^([A-Za-z_][A-Za-z0-9_]*)/.exec(line);
@@ -39,5 +39,15 @@ test('the sources keep to what ASM.COM takes: no label that is a mnemonic, no st
             const semi = code.indexOf(';');
             if (semi >= 0) assert.ok(!code.slice(semi).includes('!'), `${at}: ! in a comment`);
         });
+    }
+});
+
+test('NET.ASM is joined whole where a program includes it, and only there', () => {
+    const net = fs.readFileSync(path.join(__dirname, '..', 'net.asm'), 'latin1');
+    for (const [src] of PROGRAMS) {
+        const raw = fs.readFileSync(path.join(__dirname, '..', src), 'latin1'), whole = source(src);
+        assert.ok(!/^;\tinclude /m.test(whole), `${src}: an include left`);
+        if (/^;\tinclude net\.asm/m.test(raw)) assert.ok(whole.includes('\npoll:\tpush\tpsw\n') && whole.length > raw.length + net.length / 2, `${src}: NET.ASM joined`);
+        else assert.equal(whole, raw, `${src}: unchanged`);
     }
 });
