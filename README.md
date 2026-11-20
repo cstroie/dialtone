@@ -292,7 +292,7 @@ The sources are 8080 code in the dialect of CP/M's own `ASM.COM`, so the machine
 them with what it ships with: `ASM`, `LOAD` and `SUBMIT`. Put the system disk in A: and a disk
 in B: with the `.ASM` files, `MAKE.SUB` and `MAKEALL.SUB` (copied as text; on DigitalRerun
 the **Dialtone** disk already has them, and the `.COM` files get rebuilt in place). Those `.ASM` files are the
-whole ones that `node build.js <outdir>` writes (or a release carries), with `net.asm` joined in: the ones in
+whole ones that `node build.js <outdir>` writes (or a release carries), with `net.asm` (and `view.asm`) joined in: the ones in
 this repository have a line `;	include net.asm` instead, which `ASM.COM` would take for a comment:
 
 ```
@@ -339,6 +339,7 @@ compares them, and runs each program against made-up servers.
 |---|---|
 | `term.asm`, `irc.asm`, `gopher.asm`, `gemini.asm`, `news.asm`, `mud.asm`, `finger.asm`, `nettime.asm` | the sources |
 | `net.asm` | the modem code of six of them, joined in by `build.js` (not a program) |
+| `view.asm` | the page viewer of GOPHER, GEMINI and NEWS (screen, input line and history, saving, numbers, the directory file), joined in the same way |
 | `MAKE.SUB`, `MAKEALL.SUB` | build on CP/M: `SUBMIT B:MAKEALL` |
 | `*.COM` | as built (not in git: the releases) |
 | `build.js`, `test/` | the build and its check; the directories' limits |
